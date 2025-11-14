@@ -46,6 +46,23 @@ def remediate_open_sgs():
 
     return results
 
+
+def remediate_iam_keys():
+    results = []
+    users = iam.list_users()['Users']
+    for u in users:
+        uname = u['UserName']
+        keys = iam.list_access_keys(UserName = uname)['AccessKeyMetadata']
+        for k in keys:
+            # Consider deactivating all active keys for users without MFA
+            if k['Status'] == 'Active':
+                try:
+                    iam.update_access_key(UserName = uname, AccessKeyId = k['AccessKeyId'], Status = 'Inactive')
+                    results.append(f"Deactivated access key {k['AccessKeyId']} for user {uname} due to no MFA")
+                except Exception as e:
+                    results.append(f"Failed to deactivate key {k['AccessKeyId']} for user {uname}: {e}")
+    return results
+
 def lambda_handler(event, context):
     findings = []
     # 1) Check for public S3 buckets
@@ -66,3 +83,12 @@ def lambda_handler(event, context):
     # 2) Check for open security groups
     sg_results = remediate_open_sgs()
     findings.extend(sg_results)
+
+    # 3) Deactivate IAM access keys for users without MFA
+    key_results = remediate_iam_keys()
+    findings.extend(key_results)
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'remediation':findings})
+    }

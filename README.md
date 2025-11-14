@@ -17,6 +17,7 @@ I started doing this manually originally. But I found the AWS Management console
 
 1. An S3 Bucket with public-read access
 2. An IAM User that does not have MFA setup
+    1. An Access Key assigned to this user
 3. A Security Group that has open-SSH
 
 I ran into a few hiccups since this was my first time using terraform but ultimately got it to run successfully. I can see how this is a powerfull tool to provision large projects ESPECIALLY if they span across multiple platforms. I plan on using Terraform as much as I can
