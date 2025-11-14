@@ -25,6 +25,27 @@ def remediate_public_s3(bucket_name):
     except Exception as e:
         return f"S3 remediation error for {bucket_name}: {e}"
 
+def remediate_open_sgs():
+    results = []
+    sgs = ec2.describe_security_groups()['SecurityGroups']
+    for sg in sgs:
+        sg_id = sg['GroupId']
+        for perm in sg.get('IpPermissions', []):
+            for ip in perm.get('IpRanges', []):
+                cidr = ip.get('CidrIp')
+                
+                # Detect any 0.0.0.0/0 entries
+                if cidr == '0.0.0.0/0':
+                    from_port = perm.get('FromPort')
+                    to_port = perm.get('ToPort')
+                    try:
+                        ec2.revoke_security_group_ingress(GroupId = sg_id, IpPermissions = [perm])
+                        results.append(f"Revoked {cidr} ingress on Security Group {sg_id} ports {from_port}-{to_port}")
+                    except Exception as e:
+                        results.append(f"Failed to revoke ingress on {sg_id}: {e}")
+
+    return results
+
 def lambda_handler(event, context):
     findings = []
     # 1) Check for public S3 buckets
@@ -41,3 +62,7 @@ def lambda_handler(event, context):
                     break
         except Exception as e:
             findings.append(f"Error checking ACL for {bname}: {e}")
+
+    # 2) Check for open security groups
+    sg_results = remediate_open_sgs()
+    findings.extend(sg_results)
