@@ -31,3 +31,9 @@ Next was creating an IAM role with the minimum privledges needed to run the remi
 -   CloudWatchLogsFullAccess
 
 #### 3. Create Lambda remediation code
+
+I then created some python code for lambda. This code had 3 main functions:
+
+1. Remediate any Public S3 buckets
+2. Remediate any open Security Groups
+3. Revoke any IAM Access keys from users that did not have MFA
