@@ -15,7 +15,7 @@ I plan on also using this opportunity to get some experience using Terraform to 
 
 I started doing this manually originally. But I found the AWS Management console a bit cumbersome. Previously I had watched some videos on Terraform and figured this was a perfect time to try it out. After setting up terraform I used the Cursor IDE to help me write some code to provision the following:
 
-1. A S3 Bucket with public-read access
+1. An S3 Bucket with public-read access
 2. An IAM User that does not have MFA setup
 3. A Security Group that has open-SSH
 
