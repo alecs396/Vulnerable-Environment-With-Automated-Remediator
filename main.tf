@@ -99,6 +99,10 @@ resource "aws_iam_user" "no_mfa_user" {
   }
 }
 
+resource "aws_iam_access_key" "vuln_key" {
+  user = aws_iam_user.no_mfa_user.name
+}
+
 # Outputs
 output "s3_bucket_name" {
   description = "Name of the S3 bucket with public read access"
@@ -118,6 +122,11 @@ output "security_group_id" {
 output "iam_user_name" {
   description = "Name of the IAM user without MFA"
   value       = aws_iam_user.no_mfa_user.name
+}
+
+output "iam_access_key_id" {
+  description = "ID of the Vulnerable IAM access key"
+  value       = aws_iam_access_key.vuln_key.id
 }
 
 output "iam_user_arn" {
