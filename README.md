@@ -20,3 +20,13 @@ I started doing this manually originally. But I found the AWS Management console
 3. A Security Group that has open-SSH
 
 I ran into a few hiccups since this was my first time using terraform but ultimately got it to run successfully. I can see how this is a powerfull tool to provision large projects ESPECIALLY if they span across multiple platforms. I plan on using Terraform as much as I can
+
+#### 2. Create IAM role to run Lambda code
+
+Next was creating an IAM role with the minimum privledges needed to run the remidiator. For this I used the AWS console, created a new role, and assigned it the following policies:
+
+-   IAMReadOnlyAccess
+-   AmazonSNSFullAccess
+-   CloudWatchLogsFullAccess
+
+#### 3. Create Lambda remediation code
