@@ -50,17 +50,36 @@ def remediate_open_sgs():
 def remediate_iam_keys():
     results = []
     users = iam.list_users()['Users']
-    for u in users:
-        uname = u['UserName']
-        keys = iam.list_access_keys(UserName = uname)['AccessKeyMetadata']
-        for k in keys:
-            # Consider deactivating all active keys for users without MFA
-            if k['Status'] == 'Active':
-                try:
-                    iam.update_access_key(UserName = uname, AccessKeyId = k['AccessKeyId'], Status = 'Inactive')
-                    results.append(f"Deactivated access key {k['AccessKeyId']} for user {uname} due to no MFA")
-                except Exception as e:
-                    results.append(f"Failed to deactivate key {k['AccessKeyId']} for user {uname}: {e}")
+
+    for user in users:
+        uname = user['UserName']
+
+        # Step 1: Check MFA status
+        mfa_devices = iam.list_mfa_devices(UserName=uname)['MFADevices']
+        has_mfa = len(mfa_devices) > 0
+
+        if not has_mfa:
+            # Step 2: Deactivate keys if no MFA
+            keys = iam.list_access_keys(UserName=uname)['AccessKeyMetadata']
+
+            for k in keys:
+                if k['Status'] == 'Active':
+                    try:
+                        iam.update_access_key(
+                            UserName=uname,
+                            AccessKeyId=k['AccessKeyId'],
+                            Status='Inactive'
+                        )
+                        results.append(
+                            f"Deactivated access key {k['AccessKeyId']} for user {uname} (no MFA)"
+                        )
+                    except Exception as e:
+                        results.append(
+                            f"Error deactivating key {k['AccessKeyId']} for {uname}: {e}"
+                        )
+        else:
+            results.append(f"User {uname} has MFA — no action needed")
+
     return results
 
 def lambda_handler(event, context):
