@@ -94,7 +94,7 @@ resource "aws_iam_user" "no_mfa_user" {
   name = "vulnerable-no-mfa-user"
   
   tags = {
-    Name        = "Vulnerable IAM User (No MFA)"
+    Name        = "Vulnerable IAM User - No MFA"
     Environment = "Vulnerable"
   }
 }
