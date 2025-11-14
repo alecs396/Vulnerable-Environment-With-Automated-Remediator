@@ -11,7 +11,7 @@ I plan on also using this opportunity to get some experience using Terraform to 
 
 ### Step By Step Process
 
-#### Create the intentionally vulnerable resources
+#### 1. Create the intentionally vulnerable resources
 
 I started doing this manually originally. But I found the AWS Management console a bit cumbersome. Previously I had watched some videos on Terraform and figured this was a perfect time to try it out. After setting up terraform I used the Cursor IDE to help me write some code to provision the following:
 
