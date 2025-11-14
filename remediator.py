@@ -25,3 +25,19 @@ def remediate_public_s3(bucket_name):
     except Exception as e:
         return f"S3 remediation error for {bucket_name}: {e}"
 
+def lambda_handler(event, context):
+    findings = []
+    # 1) Check for public S3 buckets
+    buckets = s3.list_buckets().get('Buckets', [])
+    for b in buckets:
+        bname = b['Name']
+        try:
+            acl = s3.get_bucket_acl(Bucket = bname)
+            for grant in acl.get('Grants', []):
+                grantee = grant.get('Grantee', {})
+                if grantee.get('URI') == 'http://acs.amazonaws.com/groups/global/AllUsers':
+                    findings.append(f"Bucket {bname} has public ACL")
+                    findings.append(remediate_public_s3(bname))
+                    break
+        except Exception as e:
+            findings.append(f"Error checking ACL for {bname}: {e}")
